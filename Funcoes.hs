@@ -1,4 +1,15 @@
-module Funcoes where
+module Funcoes (
+    adicionarlivro,
+    coutlivro,
+    listarlivros,
+    removerLivro,
+    adicionarusuario,
+    coutusuarios,
+    listarusuarios,
+    removerusuario,
+    listaespera,
+    exibirlistaespera
+) where
 import Tipos
 
 
@@ -7,13 +18,19 @@ adicionarlivro liv x =  if elem liv x
                         then Left "Erro! Livro já registrado"
                         else Right (liv : x)
 
-coutlivro :: Livro -> String -- função que lista apenas 1 livro, a intenção é usa-la como função auxiliar
+coutlivro :: Livro -> String
 coutlivro mostrarlivro =
-    "Título: " ++ (titulo mostrarlivro) ++ "; " ++ 
-    "Autor: " ++ (autor mostrarlivro) ++ "; " ++
-    "Ano: " ++ show (ano mostrarlivro) ++ "; " ++
-    "Código Único: " ++ show (cod mostrarlivro) ++ "; " ++
-    "Status: " ++ show (status mostrarlivro)
+        "Título: " ++ titulo mostrarlivro ++ "; " ++ 
+        "Autor: " ++ autor mostrarlivro ++ "; " ++
+        "Ano: " ++ show (ano mostrarlivro) ++ "; " ++
+        "Código Único: " ++ show (cod mostrarlivro) ++ "; " ++
+        "Status: " ++ show (status mostrarlivro) ++ "; " ++
+        donoStr
+    where
+        donoStr = case dono mostrarlivro of
+            Nothing  -> "Dono: Nenhum"
+            Just usr -> "Dono: " ++ nome usr ++ " (" ++ show (matricula usr) ++ ")"
+
 
 listarlivros :: [Livro] -> String
 listarlivros livros = unlines (map coutlivro livros)
