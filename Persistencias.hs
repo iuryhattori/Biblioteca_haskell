@@ -45,14 +45,6 @@ stringParaUser = readMaybe
 stringParaFila :: String -> Maybe Fila
 stringParaFila = readMaybe
 
---carregarDeArquivoLivro :: FilePath -> IO [Livro]
---carregarDeArquivoLivro ca = do
---    co <- readFile ca
---    let l = lines co
---        livros = mapMaybe stringParaLivro l
---    evaluate (length livros)
---    return livros
-
 carregarDeArquivoLivro :: FilePath -> IO [Livro]
 carregarDeArquivoLivro ca = do
     existe <- doesFileExist ca
