@@ -23,5 +23,8 @@ data Fila = Fila
         usuarios :: [User]
     } deriving (Show, Read, Eq)
 
-
-   
+data Registro = Registro
+    { historico_usuario :: User
+    , historico_livro :: Livro
+    , registro_stat :: String
+    } deriving (Show, Read, Eq)
