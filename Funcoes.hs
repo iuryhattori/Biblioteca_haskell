@@ -6,7 +6,6 @@ module Funcoes (
     removerLivro,
     adicionarusuario,
     coutusuarios,
-    listarusuarios,
     removerusuario,
     listaespera,
     exibirlistaespera,
@@ -17,12 +16,12 @@ module Funcoes (
 ) where
 import Tipos
 
-
+-- pega um livro e uma lista e contatena o livro com a lista
 adicionarlivro:: Livro -> [Livro] -> Either String [Livro]
 adicionarlivro liv x =  if elem liv x
                         then Left "Erro! Livro já registrado"
                         else Right (liv : x)
-
+-- função auxiliar para imprimir um livro
 coutlivro :: Livro -> String
 coutlivro mostrarlivro =
         "Título: " ++ titulo mostrarlivro ++ "; " ++ 
@@ -35,36 +34,31 @@ coutlivro mostrarlivro =
         donoStr = case dono mostrarlivro of
             Nothing  -> "Dono: Nenhum"
             Just usr -> "Dono: " ++ nome usr ++ " (" ++ show (matricula usr) ++ ")"
-
-
-
+-- remove um livro com base num id de entrada
 removerLivro :: Int -> [Livro] -> Either String [Livro]
 removerLivro id livros = 
     if any (\t -> cod t == id) livros
         then Right (filter (\p -> cod p /= id) livros) 
         else Left "Erro! Livro não registrado!"
-
-
+-- recebe um usuário e uma lista de usuários e concatena o usuário com a lista
 adicionarusuario :: User -> [User] -> Either String [User]
 adicionarusuario us x = if elem us x
                         then Left "Erro! Usuário já cadastrado"
                         else Right (us : x)
-
+-- função auxiliar para imprimir um usuário
 coutusuarios :: User -> String
 coutusuarios mostrarUser =
     "Nome: " ++ show (nome mostrarUser) ++ "; " ++ 
     "Matrícula: " ++ show ( matricula mostrarUser) ++ "; " ++
     "Email: " ++ show (email mostrarUser) 
-
-listarusuarios :: [User] -> String
-listarusuarios users = unlines (map coutusuarios users)
-
+-- remove um usuário com base num inteiro de entrada
 removerusuario :: Int -> [User] -> Either String [User]
 removerusuario id usuarios =
     if any (\t -> matricula t == id) usuarios
         then Right (filter (\t -> matricula t /= id) usuarios)
         else Left "Erro! Usuario não registrado!"
-
+-- recebe um inteiro, um usuário e uma lista de livros, e modifica a lista de livros com base no id (colocando o usuário como dono do livro, 
+-- ou colocando ele na lista de espera)
 registraremprestimo :: Int -> User -> [Livro] -> IO (Either String [Livro])
 registraremprestimo id user livros =
     case break (\l -> cod l == id) livros of
@@ -87,22 +81,21 @@ registraremprestimo id user livros =
                     else
                         return $ Left "Ok!"
                 Indisponivel -> return $ Left "Livro está indisponível"
-
+-- recebe um inteiro e uma lista de livros e modifica um livro com base nesse inteiro
 registrardevolucoes :: Int -> [Livro] -> Either String [Livro]
 registrardevolucoes t livros =
     if elem t (map cod livros)
     then Right (map (\livro -> if cod livro == t then livro {status = Disponivel, dono = Nothing} else livro) livros)
     else Left "Erro, livro não encontrado"
-
+-- lista os elementos por disponibilidade
 listarPorDisponibilidade :: Status -> [Livro] -> [Livro]
 listarPorDisponibilidade sta lista = filter (\t -> status t == sta) lista
-
--- Testado!!
+-- adiciona um usuário na lista de espera
 listaespera :: User -> Fila -> Either String Fila
 listaespera user queue =    if elem user (usuarios queue)
                             then Left "Erro! Usuário já está na fila"
                             else Right queue { usuarios = user : usuarios queue}
-
+-- imprime a lista de espera
 exibirlistaespera :: Livro -> String
 exibirlistaespera livro =
     unlines (map coutusuarios (fila livro)) ++ "\nTotal de usuários na fia: " ++ show (length(fila livro))
