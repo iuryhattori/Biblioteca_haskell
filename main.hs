@@ -17,6 +17,7 @@ main = do
     (livrosAtt, usuariosAtt, _) <- menuPrincipal livros usuarios registros
     salvarEmArquivoUser "usuarios.txt" usuariosAtt
 
+
 menuPrincipal :: [Livro] -> [User] -> [Registro] -> IO ([Livro], [User], [Registro])
 menuPrincipal livros usuarios registros = do
     putStrLn $ replicate 60 '\n'
@@ -91,6 +92,7 @@ menuLivro livros usuarios = do
             putStrLn "Input inválido"
             menuLivro livros usuarios
 
+
 menuUsuario :: [User] -> IO [User]
 menuUsuario usuarios = do
     putStrLn $ replicate 60 '\n'
@@ -121,6 +123,7 @@ menuUsuario usuarios = do
             putStrLn "input inválido"
             menuUsuario usuarios
 
+
 menuRelatorios :: [Livro] -> [Registro] -> IO ()
 menuRelatorios livros registros = do
     putStrLn "    1  > Listar empréstimos ativos"
@@ -141,6 +144,7 @@ menuRelatorios livros registros = do
         _ -> do
             putStrLn "input inválido"
             menuRelatorios livros registros
+
     
 adicionarLivroMenu :: [Livro] -> IO [Livro]
 adicionarLivroMenu livros = do
@@ -161,30 +165,39 @@ adicionarLivroMenu livros = do
             _ <- getLine
             return novosLivros
 
+            
 listarLivrosMenu :: [Livro] -> IO [Livro]
 listarLivrosMenu livros = do
     mapM_ (putStrLn . coutlivro) livros
     _ <- getLine
     return livros
 
-removerLivroMenu :: [Livro] -> IO [Livro]
-removerLivroMenu livros = do
-    codLivro <- input "Digite o id do livro a ser removido: " :: IO Int
-    let livroParaRemover = filter (\l -> cod l == codLivro) livros
-    case livroParaRemover of
+
+registrarEmprestimoMenu :: [Livro] -> [User] -> [Registro] -> IO ([Livro], [Registro])
+registrarEmprestimoMenu livros usuarios registros = do
+    tituloLivro <- inputString "Digite o título do livro: \n"
+    matriculaUsuario <- input "Digite o número de matrícula do usuário: \n"
+    let buscar = filter (\u -> matricula u == matriculaUsuario) usuarios
+    case buscar of
         [] -> do
-            putStrLn "Erro, livro não encontrado"
+            putStrLn "Usuário não encontrado"
             _ <- getLine
-            return livros
-        (liv:_) -> do
-            case removerLivro liv livros of
+            return (livros, registros)
+        (usuario:_) -> do
+            resultado <- registraremprestimo tituloLivro usuario livros
+            case resultado of
                 Left erro -> do
                     putStrLn erro
-                    return livros
-                Right novosLivros -> do
-                    putStrLn "Livro removido!"
                     _ <- getLine
-                    return novosLivros 
+                    return (livros, registros)
+                Right (novosLivros, maybeRegistro) -> do
+                    putStrLn "Empréstimo processado!"
+                    _ <- getLine
+                    let novosRegistros = case maybeRegistro of
+                                            Just r  -> r : registros
+                                            Nothing -> registros
+                    return (novosLivros, novosRegistros)
+
 
 adicionarUsuarioMenu :: [User] -> IO [User]
 adicionarUsuarioMenu usuarios = do
@@ -203,11 +216,13 @@ adicionarUsuarioMenu usuarios = do
             _ <- getLine
             return novosUsuarios
 
+
 listarUsuariosMenu :: [User] -> IO [User]
 listarUsuariosMenu usuarios = do
     mapM_ (putStrLn . coutusuarios) usuarios
     _ <- getLine
     return usuarios
+
 
 removerUsuarioMenu :: [User] -> IO [User]
 removerUsuarioMenu usuarios = do
@@ -228,27 +243,6 @@ removerUsuarioMenu usuarios = do
                     _ <- getLine
                     return novosUsuarios 
 
-registrarEmprestimoMenu :: [Livro] -> [User] -> IO [Livro]
-registrarEmprestimoMenu livros usuarios = do
-    idLivro <- input "Digite o id do livro: \n" :: IO Int
-    matriculaUsuario <- input "Digite o numero de matricula do usuário: \n" :: IO Int
-    let buscar = filter (\u -> matricula u == matriculaUsuario) usuarios
-    case buscar of
-        [] -> do
-            putStrLn "Usuário não encontrado"
-            _ <- getLine
-            return livros
-        (usuario:_) -> do
-            resultado <- registraremprestimo idLivro usuario livros
-            case resultado of
-                Left erro -> do
-                    putStrLn erro
-                    _ <- getLine
-                    return livros
-                Right novosLivros -> do
-                    putStrLn "Empréstimo concluido!"
-                    _ <- getLine
-                    return novosLivros
 
 registrarDevolucoesMenu :: [Livro] -> IO [Livro]
 registrarDevolucoesMenu livros = do
@@ -263,6 +257,7 @@ registrarDevolucoesMenu livros = do
             _ <- getLine
             return novosLivros
 
+
 listarPorDisponibilidadeMenu :: [Livro] -> IO [Livro]
 listarPorDisponibilidadeMenu livros = do
     status <- input "Digite o status Disponivel | Indisponivel | Emprestado\n"
@@ -270,6 +265,7 @@ listarPorDisponibilidadeMenu livros = do
     mapM_ (putStrLn.coutlivro) listaFiltrada
     _ <- getLine
     return livros
+
 
 exibirListaEsperaMenu :: [Livro] -> IO [Livro]
 exibirListaEsperaMenu livros = do
@@ -286,11 +282,13 @@ exibirListaEsperaMenu livros = do
             _ <- getLine
             return livros
 
+
 inputString :: String -> IO String
 inputString text = do
     putStr text
     line <- getLine
     return line
+
 
 input :: Read a => String -> IO a
 input text = do
