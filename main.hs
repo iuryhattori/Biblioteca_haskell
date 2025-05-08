@@ -20,6 +20,9 @@ main = do
 menuPrincipal :: [Livro] -> [User] -> [Registro] -> IO ([Livro], [User], [Registro])
 menuPrincipal livros usuarios registros = do
     putStrLn $ replicate 60 '\n'
+    putStrLn "======================================================================"
+    putStrLn "                            Menu Principal                            "
+    putStrLn "======================================================================"
     putStrLn "  1 > Cadastrar livros"
     putStrLn "  2 > Cadastrar usuários"
     putStrLn "  3 > Empréstimo e devolução"
