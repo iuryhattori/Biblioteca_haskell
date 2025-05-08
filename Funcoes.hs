@@ -103,10 +103,25 @@ exibirlistaespera livro =
 
 
 
--- Relatórios
+            -- Relatórios --
+-- utilitarias
+regToBook :: Livro -> Registro -> Bool
+regToBook b = (cod b==).livroId
 
-relatórioEmprestimosAtivos :: [Registro] -> [Registro]
-relatórioEmprestimosAtivos = filter ((==Emprestado).stat)
+regToUser :: User -> Registro -> Bool
+regToUser u = (matricula u==).usuarioId
+
+regActive :: Registro -> Bool
+regActive = (Emprestado==).stat
+
+
+
+relatórioEmprestimosAtivos :: [Livro] -> [User] -> [Registro] -> [(Livro, User)]
+relatórioEmprestimosAtivos bs us rs = [(b, u) | b <- bs , u <- us , r <- rs, 
+              regActive r,
+              regToBook b r,
+              regToUser u r]
+
 
 relatórioHistorico :: User -> [Registro] -> [Registro]
-relatórioHistorico u = filter ((/=u).usuario)
+relatórioHistorico u rs = [r | r <- rs, usuarioId r == matricula u]

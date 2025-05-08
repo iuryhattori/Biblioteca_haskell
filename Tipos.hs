@@ -8,8 +8,6 @@ data Livro = Livro
     , ano       :: String
     , cod       :: Int
     , status    :: Status
-    , dono      :: Maybe User
-    , fila      :: [User]
     } deriving (Show, Read, Eq)
 
 data User = User
@@ -24,7 +22,7 @@ data Fila = Fila
     } deriving (Show, Read, Eq)
 
 data Registro = Registro
-    { usuario :: Int
-    , livro :: Int
+    { usuarioId :: Int
+    , livroId :: Int
     , stat :: Status
     } deriving (Show, Read, Eq)

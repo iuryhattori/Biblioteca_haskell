@@ -337,8 +337,12 @@ editarUsuarioMenu users = do
 
 -- Relatórios --
 
--- relatórioEmprestimosAtivosMenu :: [Registro] -> IO [Registro]
--- relatórioEmprestimosAtivosMenu 
+relatórioEmprestimosAtivosMenu :: [User] -> [Livro] -> [Registro] -> IO [Registro]
+relatórioEmprestimosAtivosMenu us bs rs = do
+    let regs = relatórioEmprestimosAtivos us bs rs
+    putStrLn $ "Empréstimos ativos: " ++ show (length regs)
+    mapM_ (putStrLn . coutregistros) regs
+    confirmation rs
 
 
 
