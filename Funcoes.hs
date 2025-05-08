@@ -63,9 +63,9 @@ removerusuario us x =   if elem us x
                         then Right (filter (\p -> p /= us) x)
                         else Left "Erro! Usuário não cadastrado"
 
-registraremprestimo :: String -> User -> [Livro] -> IO (Either String [Livro])
-registraremprestimo t user livros =
-    case break (\l -> titulo l == t) livros of
+registraremprestimo :: Int -> User -> [Livro] -> IO (Either String [Livro])
+registraremprestimo id user livros =
+    case break (\l -> cod l == id) livros of
         (_, []) -> return $ Left "Erro: livro não encontrado"
         (antes, livro:depois) ->
             case status livro of
