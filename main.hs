@@ -28,8 +28,8 @@ menuPrincipal livros usuarios registros = do
     input <- getLine
     case input of
         "1" -> do
-            novosLivros <- menuLivro livros usuarios
-            menuPrincipal novosLivros usuarios registros
+            (novosLivros,novosRegistros) <- menuLivro livros usuarios
+            menuPrincipal novosLivros usuarios registros novosRegistros
         "2" -> do
             novosUsuarios <- menuUsuario usuarios
             menuPrincipal livros novosUsuarios registros
@@ -87,7 +87,7 @@ menuLivro livros usuarios = do
 
         "2" -> do
             (novosLivros, novosRegistros) <- registrarEmprestimoMenu livros usuarios registros
-            menuLivro novosLivros usuarios
+            menuLivro novosLivros usuarios novosRegistros
 
         "3" -> do
             menuLivro livros usuarios
