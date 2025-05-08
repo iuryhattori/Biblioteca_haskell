@@ -83,11 +83,14 @@ registraremprestimo id user livros =
                         return $ Left "Ok!"
                 Indisponivel -> return $ Left "Livro está indisponível"
 -- recebe um inteiro e uma lista de livros e modifica um livro com base nesse inteiro
-registrardevolucoes :: Int -> [Livro] -> Either String [Livro]
-registrardevolucoes t livros =
-    if elem t (map cod livros)
-    then Right (map (\livro -> if cod livro == t then livro {status = Disponivel, dono = Nothing} else livro) livros)
-    else Left "Erro, livro não encontrado"
+registrarDevolucao :: Int -> Int -> [Registro] -> Either String [Registro]
+registrarDevolucao iduser idlivro registros =
+    if any (\r -> livro r == idlivro && usuarios r == iduser && stat r = Emprestado) registros
+    then Right (Registro iduser idlivro Disponivel : registros)
+    else Left "Erro! Emprestimo não encontrado"
+-- lista os emprestimos ativos
+listarEmprestimosAtivos :: [Registro] -> [Registro]
+listarEmprestimosAtivos :: filter (\r -> stat r == Emprestado)
 -- lista os elementos por disponibilidade
 listarPorDisponibilidade :: Status -> [Livro] -> [Livro]
 listarPorDisponibilidade sta lista = filter (\t -> status t == sta) lista
