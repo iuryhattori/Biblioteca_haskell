@@ -98,7 +98,7 @@ menuUsuario usuarios = do
     putStrLn "   2  > Listar usuários"
     putStrLn "   3  > Remover usuário"
     putStrLn "   4  > Adicionar à lista de espera"
-    putStrLn "   14 > Voltar para o menu"
+    putStrLn "   0 > Voltar para o menu"
     putStrLn "- Digite o numero da ação: "
     input <- getLine
 
