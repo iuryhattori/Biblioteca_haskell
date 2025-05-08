@@ -49,13 +49,13 @@ menuLivro livros usuarios = do
     putStrLn $ replicate 60 '\n' -- limpa tudo
     putStrLn "- O que gostaria de realizar?:"
     putStrLn "   1  > Cadastrar livros"
-    putStrLn "   2  > Cadastrar Empréstimo"
-    putStrLn "   3  > Relatórios"
+    putStrLn "   2  > Registrar empréstimo"
+    putStrLn "   3  > Registrar devolução"
     putStrLn "   4  > Remover livro"
     putStrLn "   5  > Listar livros"
     putStrLn "   6  > Filtrar por disponibilidade"
     putStrLn "   7  > Mostrar lista de espera"
-    putStrLn "   0 > Voltar para o menu principal"
+    putStrLn "   0  > Voltar para o menu principal"
     putStrLn "- Digite o numero da ação: "
     input <- getLine
 
@@ -69,7 +69,8 @@ menuLivro livros usuarios = do
             menuLivro novosLivros usuarios
 
         "3" -> do
-            menuLivro livros usuarios
+            novosLivros <- registrarDevolucoesMenu livros
+            menuLivro novosLivros usuarios
 
         "4" -> do
             novosLivros <- removerLivroMenu livros
@@ -98,7 +99,7 @@ menuUsuario usuarios = do
     putStrLn "   2  > Listar usuários"
     putStrLn "   3  > Remover usuário"
     putStrLn "   4  > Adicionar à lista de espera"
-    putStrLn "   0 > Voltar para o menu"
+    putStrLn "   0  > Voltar para o menu"
     putStrLn "- Digite o numero da ação: "
     input <- getLine
 
@@ -187,7 +188,7 @@ removerLivroMenu livros = do
                 Right novosLivros -> do
                     putStrLn "Livro removido!"
                     _ <- getLine
-                    return novosLivros
+                    return novosLivros 
 
 adicionarUsuarioMenu :: [User] -> IO [User]
 adicionarUsuarioMenu usuarios = do
@@ -229,11 +230,11 @@ removerUsuarioMenu usuarios = do
                 Right novosUsuarios -> do
                     putStrLn "Usuário removido!"
                     _ <- getLine
-                    return novosUsuarios
+                    return novosUsuarios 
 
 registrarEmprestimoMenu :: [Livro] -> [User] -> IO [Livro]
 registrarEmprestimoMenu livros usuarios = do
-    tituloLivro <- inputString "Digite o título do livro: \n"
+    idLivro <- input "Digite o id do livro: \n" :: IO Int
     matriculaUsuario <- input "Digite o numero de matricula do usuário: \n" :: IO Int
     let buscar = filter (\u -> matricula u == matriculaUsuario) usuarios
     case buscar of
@@ -242,7 +243,7 @@ registrarEmprestimoMenu livros usuarios = do
             _ <- getLine
             return livros
         (usuario:_) -> do
-            resultado <- registraremprestimo tituloLivro usuario livros
+            resultado <- registraremprestimo idLivro usuario livros
             case resultado of
                 Left erro -> do
                     putStrLn erro
@@ -253,16 +254,18 @@ registrarEmprestimoMenu livros usuarios = do
                     _ <- getLine
                     return novosLivros
 
+
+
 registrarDevolucoesMenu :: [Livro] -> IO [Livro]
 registrarDevolucoesMenu livros = do
-    tituloLivro <- inputString "Digite o título do livro: \n"
-    case registrardevolucoes tituloLivro livros of
+    id <- input "Digite o código do livro: \n"
+    case registrardevolucoes id livros of
         Left erro -> do
             putStrLn erro
             _ <- getLine
             return livros
         Right novosLivros -> do
-            putStrLn "Evolução concluida!"
+            putStrLn "Devolução concluida!"
             _ <- getLine
             return novosLivros
 
@@ -276,9 +279,9 @@ listarPorDisponibilidadeMenu livros = do
 
 exibirListaEsperaMenu :: [Livro] -> IO [Livro]
 exibirListaEsperaMenu livros = do
-    putStrLn "Digite o título do livro para exibir a lista de espera: "
-    tituloLivro <- inputString ""
-    let filtraLivro = filter (\livro -> titulo livro == tituloLivro) livros
+    putStrLn "Digite o código do livro para exibir a lista de espera: "
+    id <- input ""
+    let filtraLivro = filter (\livro -> cod livro == id) livros
     case filtraLivro of
         [] -> do
             putStrLn "Livro não encontrado"

@@ -3,7 +3,6 @@
 module Funcoes (
     adicionarlivro,
     coutlivro,
-    listarlivros,
     removerLivro,
     adicionarusuario,
     coutusuarios,
@@ -38,13 +37,12 @@ coutlivro mostrarlivro =
             Just usr -> "Dono: " ++ nome usr ++ " (" ++ show (matricula usr) ++ ")"
 
 
-listarlivros :: [Livro] -> String
-listarlivros livros = unlines (map coutlivro livros)
 
-removerLivro :: Livro -> [Livro] -> Either String [Livro]
-removerLivro liv x = if elem liv x
-                     then Right (filter (\p -> p /= liv) x) 
-                     else Left "Erro! Livro não registrado!"
+removerLivro :: Int -> [Livro] -> Either String [Livro]
+removerLivro id livros = 
+    if any (\t -> cod t == id) livros
+        then Right (filter (\p -> cod p /= id) livros) 
+        else Left "Erro! Livro não registrado!"
 
 
 adicionarusuario :: User -> [User] -> Either String [User]
@@ -61,14 +59,15 @@ coutusuarios mostrarUser =
 listarusuarios :: [User] -> String
 listarusuarios users = unlines (map coutusuarios users)
 
-removerusuario :: User -> [User] -> Either String [User]
-removerusuario us x =   if elem us x
-                        then Right (filter (\p -> p /= us) x)
-                        else Left "Erro! Usuário não cadastrado"
+removerusuario :: Int -> [User] -> Either String [User]
+removerusuario id usuarios =
+    if any (\t -> matricula t == id) usuarios
+        then Right (filter (\t -> matricula t /= id) usuarios)
+        else Left "Erro! Usuario não registrado!"
 
-registraremprestimo :: String -> User -> [Livro] -> IO (Either String [Livro])
-registraremprestimo t user livros =
-    case break (\l -> titulo l == t) livros of
+registraremprestimo :: Int -> User -> [Livro] -> IO (Either String [Livro])
+registraremprestimo id user livros =
+    case break (\l -> cod l == id) livros of
         (_, []) -> return $ Left "Erro: livro não encontrado"
         (antes, livro:depois) ->
             case status livro of
@@ -89,10 +88,10 @@ registraremprestimo t user livros =
                         return $ Left "Ok!"
                 Indisponivel -> return $ Left "Livro está indisponível"
 
-registrardevolucoes :: String -> [Livro] -> Either String [Livro]
+registrardevolucoes :: Int -> [Livro] -> Either String [Livro]
 registrardevolucoes t livros =
-    if elem t (map titulo livros)
-    then Right (map (\livro -> if titulo livro == t then livro {status = Disponivel, dono = Nothing} else livro) livros)
+    if elem t (map cod livros)
+    then Right (map (\livro -> if cod livro == t then livro {status = Disponivel, dono = Nothing} else livro) livros)
     else Left "Erro, livro não encontrado"
 
 listarPorDisponibilidade :: Status -> [Livro] -> [Livro]
