@@ -8,7 +8,10 @@ module Funcoes (
     listarusuarios,
     removerusuario,
     listaespera,
-    exibirlistaespera
+    exibirlistaespera,
+    registraremprestimo,
+    registrardevolucoes,
+    listarPorDisponibilidade
 ) where
 import Tipos
 
@@ -60,15 +63,21 @@ removerusuario us x =   if elem us x
                         then Right (filter (\p -> p /= us) x)
                         else Left "Erro! Usuário não cadastrado"
 
-registraremprestimo :: String -> [Livro] -> Either String [Livro]
-registraremprestimo t x =   if elem t (map titulo x) -- aplicar map para puxar os titulos dos livros
-                            then Right (map (\p -> if titulo p == t then p {status = Emprestado} else p )x )
-                            else Left "Erro! Livro não registrado"
+registraremprestimo :: String -> User -> [Livro] -> Either String [Livro]
+registraremprestimo t user livros =
+    if elem t (map titulo livros) 
+    then Right (map (\livro -> if titulo livro == t then livro {status = Emprestado, dono = Just user} else livro) livros)
+    else Left "Erro, livro não encontrado"
 
 registrardevolucoes :: String -> [Livro] -> Either String [Livro]
-registrardevolucoes t x =   if elem t (map titulo x)
-                            then Right (map (\p -> if titulo p == t then p {status = Disponivel} else p) x)
-                            else Left "Erro! Livro não registrado"
+registrardevolucoes t livros =
+    if elem t (map titulo livros)
+    then Right (map (\livro -> if titulo livro == t then livro {status = Disponivel, dono = Nothing} else livro) livros)
+    else Left "Erro, livro não encontrado"
+
+listarPorDisponibilidade :: Status -> [Livro] -> [Livro]
+listarPorDisponibilidade sta lista = filter (\t -> status t == sta) lista
+
 -- Testado!!
 listaespera :: User -> Fila -> Either String Fila
 listaespera user queue =    if elem user (usuarios queue)
