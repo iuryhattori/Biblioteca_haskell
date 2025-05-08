@@ -10,7 +10,7 @@ module Funcoes (
     listaespera,
     exibirlistaespera,
     registraremprestimo,
-    registrardevolucoes,
+    registrarDevolucao,
     listarPorDisponibilidade,
     relatórioHistorico,
     relatórioEmprestimosAtivos
@@ -36,11 +36,17 @@ coutlivro mostrarlivro =
             Nothing  -> "Dono: Nenhum"
             Just usr -> "Dono: " ++ nome usr ++ " (" ++ show (matricula usr) ++ ")"
 -- remove um livro com base num id de entrada
-removerLivro :: Int -> [Livro] -> Either String [Livro]
-removerLivro id livros = 
+removerLivro :: Int -> [Livro] -> [Registro] -> Either String ([Livro], [Registro])
+removerLivro id livros registros =
     if any (\t -> cod t == id) livros
-        then Right (filter (\p -> cod p /= id) livros) 
+        then let
+                livrosAtualizados = filter (\p -> cod p /= id) livros
+                registrosAtualizados = filter (\r -> livroId r /= id) registros
+             in Right (livrosAtualizados, registrosAtualizados)
         else Left "Erro! Livro não registrado!"
+
+
+
 -- recebe um usuário e uma lista de usuários e concatena o usuário com a lista
 adicionarusuario :: User -> [User] -> Either String [User]
 adicionarusuario us x = if elem us x
@@ -53,13 +59,21 @@ coutusuarios mostrarUser =
     "Matrícula: " ++ show ( matricula mostrarUser) ++ "; " ++
     "Email: " ++ show (email mostrarUser) 
 -- remove um usuário com base num inteiro de entrada
-removerusuario :: Int -> [User] -> Either String [User]
-removerusuario id usuarios =
-    if any (\t -> matricula t == id) usuarios
-        then Right (filter (\t -> matricula t /= id) usuarios)
-        else Left "Erro! Usuario não registrado!"
--- recebe um inteiro, um usuário e uma lista de livros, e modifica a lista de livros com base no id (colocando o usuário como dono do livro, 
--- ou colocando ele na lista de espera)
+removerusuario :: User -> [User] -> [Livro] -> Either String ([User], [Livro])
+removerusuario us usuarios livros =
+    if elem us usuarios
+        then do
+            let usuariosRestantes = filter (\u -> u /= us) usuarios
+            let livrosAtualizados = map (removerDaFila us) livros
+            Right (usuariosRestantes, livrosAtualizados)
+        else Left "Erro! Usuário não cadastrado"
+
+removerDaFila :: User -> Livro -> Livro
+removerDaFila us livro = livro { fila = filter (/= us) (fila livro) }
+
+
+
+
 registraremprestimo :: Int -> User -> [Livro] -> IO (Either String [Livro])
 registraremprestimo id user livros =
     case break (\l -> cod l == id) livros of
@@ -82,15 +96,22 @@ registraremprestimo id user livros =
                     else
                         return $ Left "Ok!"
                 Indisponivel -> return $ Left "Livro está indisponível"
+
+
 -- recebe um inteiro e uma lista de livros e modifica um livro com base nesse inteiro
 registrarDevolucao :: Int -> Int -> [Registro] -> Either String [Registro]
 registrarDevolucao iduser idlivro registros =
-    if any (\r -> livro r == idlivro && usuarios r == iduser && stat r == Emprestado) registros
-    then Right (Registro iduser idlivro Disponivel : registros)
+    if any (\r -> livroId r == idlivro && usuarioId r == iduser && stat r == Emprestado) registros
+    then 
+        let registrosAtualizados = map (\r -> if livroId r == idlivro && usuarioId r == iduser 
+                                                then r { stat = Disponivel } 
+                                                else r) registros
+        in Right registrosAtualizados
     else Left "Erro! Emprestimo não encontrado"
--- lista os emprestimos ativos
+
 listarEmprestimosAtivos :: [Registro] -> [Registro]
-listarEmprestimosAtivos :: filter (\r -> stat r == Emprestado)
+listarEmprestimosAtivos registros = filter (\r -> stat r == Emprestado) registros
+
 -- lista os elementos por disponibilidade
 listarPorDisponibilidade :: Status -> [Livro] -> [Livro]
 listarPorDisponibilidade sta lista = filter (\t -> status t == sta) lista
@@ -109,13 +130,16 @@ exibirlistaespera livro =
             -- Relatórios --
 -- utilitarias
 regToBook :: Livro -> Registro -> Bool
-regToBook b = (cod b==).livroId
+regToBook b r = cod b == livroId r
 
 regToUser :: User -> Registro -> Bool
-regToUser u = (matricula u==).usuarioId
+regToUser u r = matricula u == usuarioId r
 
 regActive :: Registro -> Bool
-regActive = (Emprestado==).stat
+regActive r = stat r == Emprestado
+
+
+
 
 
 
