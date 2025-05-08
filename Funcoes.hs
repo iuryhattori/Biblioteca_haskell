@@ -1,7 +1,6 @@
 module Funcoes (
     adicionarlivro,
     coutlivro,
-    listarlivros,
     removerLivro,
     adicionarusuario,
     coutusuarios,
@@ -35,8 +34,6 @@ coutlivro mostrarlivro =
             Just usr -> "Dono: " ++ nome usr ++ " (" ++ show (matricula usr) ++ ")"
 
 
-listarlivros :: [Livro] -> String
-listarlivros livros = unlines (map coutlivro livros)
 
 removerLivro :: Int -> [Livro] -> Either String [Livro]
 removerLivro id livros = 
