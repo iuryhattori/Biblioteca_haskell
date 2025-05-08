@@ -23,6 +23,7 @@ menuPrincipal livros usuarios registros = do
     putStrLn "======================================================================"
     putStrLn "                            Menu Principal                            "
     putStrLn "======================================================================"
+    putStrLn "Opções:\n"
     putStrLn "  1 > Cadastrar livros"
     putStrLn "  2 > Cadastrar usuários"
     putStrLn "  3 > Empréstimo e devolução"
