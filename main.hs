@@ -337,6 +337,11 @@ editarUsuarioMenu users = do
 
 -- Relatórios --
 
+-- relatórioEmprestimosAtivosMenu :: [Registro] -> IO [Registro]
+-- relatórioEmprestimosAtivosMenu 
+
+
+
 relatórioHistoricoMenu :: [User] -> [Registro] -> IO ()
 relatórioHistoricoMenu users registers = do
     userId <- input "Digite o numero de matricula do usuário: \n" :: IO Int

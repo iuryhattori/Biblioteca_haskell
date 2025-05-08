@@ -24,7 +24,7 @@ data Fila = Fila
     } deriving (Show, Read, Eq)
 
 data Registro = Registro
-    { historico_usuario :: User
-    , historico_livro :: Livro
-    , registro_stat :: String
+    { usuario :: Int
+    , livro :: Int
+    , stat :: Status
     } deriving (Show, Read, Eq)

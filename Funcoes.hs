@@ -12,7 +12,8 @@ module Funcoes (
     registraremprestimo,
     registrardevolucoes,
     listarPorDisponibilidade,
-    relatórioHistorico
+    relatórioHistorico,
+    relatórioEmprestimosAtivos
 ) where
 import Tipos
 
@@ -104,5 +105,8 @@ exibirlistaespera livro =
 
 -- Relatórios
 
+relatórioEmprestimosAtivos :: [Registro] -> [Registro]
+relatórioEmprestimosAtivos = filter ((==Emprestado).stat)
+
 relatórioHistorico :: User -> [Registro] -> [Registro]
-relatórioHistorico u = filter ((/= u).historico_usuario)
+relatórioHistorico u = filter ((/=u).usuario)
