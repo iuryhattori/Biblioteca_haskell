@@ -85,7 +85,7 @@ registraremprestimo id user livros =
 -- recebe um inteiro e uma lista de livros e modifica um livro com base nesse inteiro
 registrarDevolucao :: Int -> Int -> [Registro] -> Either String [Registro]
 registrarDevolucao iduser idlivro registros =
-    if any (\r -> livro r == idlivro && usuarios r == iduser && stat r = Emprestado) registros
+    if any (\r -> livro r == idlivro && usuarios r == iduser && stat r == Emprestado) registros
     then Right (Registro iduser idlivro Disponivel : registros)
     else Left "Erro! Emprestimo não encontrado"
 -- lista os emprestimos ativos
