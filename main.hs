@@ -49,8 +49,8 @@ menuLivro livros usuarios = do
     putStrLn $ replicate 60 '\n' -- limpa tudo
     putStrLn "- O que gostaria de realizar?:"
     putStrLn "   1  > Cadastrar livros"
-    putStrLn "   2  > Cadastrar Empréstimo"
-    putStrLn "   3  > Relatórios"
+    putStrLn "   2  > Registrar empréstimo"
+    putStrLn "   3  > Registrar devolução"
     putStrLn "   4  > Remover livro"
     putStrLn "   5  > Listar livros"
     putStrLn "   6  > Filtrar por disponibilidade"
@@ -69,7 +69,8 @@ menuLivro livros usuarios = do
             menuLivro novosLivros usuarios
 
         "3" -> do
-            menuLivro livros usuarios
+            novosLivros <- registrarDevolucoesMenu livros
+            menuLivro novosLivros usuarios
 
         "4" -> do
             novosLivros <- removerLivroMenu livros
@@ -236,16 +237,18 @@ registrarEmprestimoMenu livros usuarios = do
                     _ <- getLine
                     return novosLivros
 
+
+
 registrarDevolucoesMenu :: [Livro] -> IO [Livro]
 registrarDevolucoesMenu livros = do
-    tituloLivro <- inputString "Digite o título do livro: \n"
-    case registrardevolucoes tituloLivro livros of
+    id <- input "Digite o código do livro: \n"
+    case registrardevolucoes id livros of
         Left erro -> do
             putStrLn erro
             _ <- getLine
             return livros
         Right novosLivros -> do
-            putStrLn "Evolução concluida!"
+            putStrLn "Devolução concluida!"
             _ <- getLine
             return novosLivros
 
@@ -259,9 +262,9 @@ listarPorDisponibilidadeMenu livros = do
 
 exibirListaEsperaMenu :: [Livro] -> IO [Livro]
 exibirListaEsperaMenu livros = do
-    putStrLn "Digite o título do livro para exibir a lista de espera: "
-    tituloLivro <- inputString ""
-    let filtraLivro = filter (\livro -> titulo livro == tituloLivro) livros
+    putStrLn "Digite o código do livro para exibir a lista de espera: "
+    id <- input ""
+    let filtraLivro = filter (\livro -> cod livro == id) livros
     case filtraLivro of
         [] -> do
             putStrLn "Livro não encontrado"
