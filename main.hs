@@ -64,7 +64,7 @@ removerLivroMenu livros = do
                     return novosLivros 
 
 
-menuLivro :: [Livro] -> [User] -> IO [Livro]
+menuLivro :: [Livro] -> [User] -> [Registro] -> IO ([Livro], [Registro])
 menuLivro livros usuarios = do
     -- menu de ações --
     putStrLn $ replicate 60 '\n' -- limpa tudo
@@ -86,7 +86,7 @@ menuLivro livros usuarios = do
             menuLivro novosLivros usuarios
 
         "2" -> do
-            novosLivros <- registrarEmprestimoMenu livros usuarios
+            (novosLivros, novosRegistros) <- registrarEmprestimoMenu livros usuarios registros
             menuLivro novosLivros usuarios
 
         "3" -> do
