@@ -44,6 +44,26 @@ menuPrincipal livros usuarios registros = do
             menuPrincipal livros usuarios registros
 
 
+removerLivroMenu :: [Livro] -> IO [Livro]
+removerLivroMenu livros = do
+    codLivro <- input "Digite o id do livro a ser removido: " :: IO Int
+    let livroParaRemover = filter (\l -> cod l == codLivro) livros
+    case livroParaRemover of
+        [] -> do
+            putStrLn "Erro, livro não encontrado"
+            _ <- getLine
+            return livros
+        (liv:_) -> do
+            case removerLivro liv livros of
+                Left erro -> do
+                    putStrLn erro
+                    return livros
+                Right novosLivros -> do
+                    putStrLn "Livro removido!"
+                    _ <- getLine
+                    return novosLivros 
+
+
 menuLivro :: [Livro] -> [User] -> IO [Livro]
 menuLivro livros usuarios = do
     -- menu de ações --
