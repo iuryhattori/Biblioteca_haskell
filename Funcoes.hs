@@ -63,11 +63,28 @@ removerusuario us x =   if elem us x
                         then Right (filter (\p -> p /= us) x)
                         else Left "Erro! Usuário não cadastrado"
 
-registraremprestimo :: String -> User -> [Livro] -> Either String [Livro]
+registraremprestimo :: String -> User -> [Livro] -> IO (Either String [Livro])
 registraremprestimo t user livros =
-    if elem t (map titulo livros) 
-    then Right (map (\livro -> if titulo livro == t then livro {status = Emprestado, dono = Just user} else livro) livros)
-    else Left "Erro, livro não encontrado"
+    case break (\l -> titulo l == t) livros of
+        (_, []) -> return $ Left "Erro: livro não encontrado"
+        (antes, livro:depois) ->
+            case status livro of
+                Disponivel -> do
+                    let livroEmprestado = livro {status = Emprestado, dono = Just user}
+                    return $ Right (antes ++ [livroEmprestado] ++ depois)
+                Emprestado -> do
+                    putStrLn "Livro indisponível, gostaria de entrar na lista de espera? sim/não"
+                    resposta <- getLine
+                    if resposta == "sim" then
+                        if user `elem` fila livro then
+                            return $ Left "Você já está na fila deste livro!"
+                        else do
+                            let novaFila = fila livro ++ [user]
+                                livroAtualizado = livro {fila = novaFila}
+                            return $ Right (antes ++ [livroAtualizado] ++ depois)
+                    else
+                        return $ Left "Ok!"
+                Indisponivel -> return $ Left "Livro está indisponível"
 
 registrardevolucoes :: String -> [Livro] -> Either String [Livro]
 registrardevolucoes t livros =
@@ -85,10 +102,6 @@ listaespera user queue =    if elem user (usuarios queue)
                             else Right queue { usuarios = user : usuarios queue}
 
 
-exibirlistaespera :: Fila -> String
-exibirlistaespera fil =
-    unlines (map coutusuarios (usuarios fil)) ++
-    "\nTotal de usuários fila: " ++ show (length (usuarios fil))
-
-listarEmprestimosAtivos :: [Livro] -> [Livro]
-listarEmprestimosAtivos = listarPorDisponibilidade Emprestado
+exibirlistaespera :: Livro -> String
+exibirlistaespera livro =
+    unlines (map coutusuarios (fila livro)) ++ "\nTotal de usuários na fia: " ++ show (length(fila livro))
