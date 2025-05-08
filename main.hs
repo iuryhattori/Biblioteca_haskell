@@ -230,7 +230,7 @@ removerUsuarioMenu usuarios = do
 
 registrarEmprestimoMenu :: [Livro] -> [User] -> IO [Livro]
 registrarEmprestimoMenu livros usuarios = do
-    tituloLivro <- inputString "Digite o título do livro: \n"
+    idLivro <- input "Digite o id do livro: \n" :: IO Int
     matriculaUsuario <- input "Digite o numero de matricula do usuário: \n" :: IO Int
     let buscar = filter (\u -> matricula u == matriculaUsuario) usuarios
     case buscar of
@@ -239,7 +239,7 @@ registrarEmprestimoMenu livros usuarios = do
             _ <- getLine
             return livros
         (usuario:_) -> do
-            resultado <- registraremprestimo tituloLivro usuario livros
+            resultado <- registraremprestimo idLivro usuario livros
             case resultado of
                 Left erro -> do
                     putStrLn erro
