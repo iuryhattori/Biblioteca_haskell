@@ -175,20 +175,19 @@ removerLivroMenu :: [Livro] -> IO [Livro]
 removerLivroMenu livros = do
     codLivro <- input "Digite o id do livro a ser removido: " :: IO Int
     let livroParaRemover = filter (\l -> cod l == codLivro) livros
-    case livroParaRemover of
-        [] -> do
+    if length livroParaRemover /= 1 then do
             putStrLn "Erro, livro não encontrado"
             _ <- getLine
             return livros
-        (liv:_) -> do
-            case removerLivro liv livros of
-                Left erro -> do
-                    putStrLn erro
-                    return livros
-                Right novosLivros -> do
-                    putStrLn "Livro removido!"
-                    _ <- getLine
-                    return novosLivros 
+    else do
+        case removerLivro codLivro livros of
+            Left erro -> do
+                putStrLn erro
+                return livros
+            Right novosLivros -> do
+                putStrLn "Livro removido!"
+                _ <- getLine
+                return novosLivros 
 
 adicionarUsuarioMenu :: [User] -> IO [User]
 adicionarUsuarioMenu usuarios = do
@@ -222,8 +221,12 @@ removerUsuarioMenu usuarios = do
             putStrLn "Erro, usuário não encontrado"
             _ <- getLine
             return usuarios
-        (usu:_) -> do
-            case removerusuario usu usuarios of
+        (_:_:_) -> do
+            putStrLn "Multiplos usuarios!!"
+            _ <- getLine
+            return usuarios
+        [usu] -> do
+            case removerusuario idUsuario usuarios of
                 Left erro -> do
                     putStrLn erro
                     return usuarios
@@ -234,25 +237,25 @@ removerUsuarioMenu usuarios = do
 
 registrarEmprestimoMenu :: [Livro] -> [User] -> IO [Livro]
 registrarEmprestimoMenu livros usuarios = do
-    idLivro <- input "Digite o id do livro: \n" :: IO Int
-    matriculaUsuario <- input "Digite o numero de matricula do usuário: \n" :: IO Int
-    let buscar = filter (\u -> matricula u == matriculaUsuario) usuarios
-    case buscar of
-        [] -> do
-            putStrLn "Usuário não encontrado"
-            _ <- getLine
-            return livros
-        (usuario:_) -> do
-            resultado <- registraremprestimo idLivro usuario livros
-            case resultado of
-                Left erro -> do
-                    putStrLn erro
-                    _ <- getLine
-                    return livros
-                Right novosLivros -> do
-                    putStrLn "Empréstimo concluido!"
-                    _ <- getLine
-                    return novosLivros
+    livroId <- input "Digite o id do livro: \n" :: IO Int
+    usuarioId <- input "Digite o numero de matricula do usuário: \n" :: IO Int
+    let usuarioLs = filter ((usuarioId==).matricula) usuarios
+    let livroLs   = filter ((livroId==).cod)         livros
+    if length usuarioLs /= 1 || length livroLs /= 1 then do
+        putStrLn "Usuário não encontrado" -- tratar se achar mais de 1?
+        _ <- getLine
+        return livros
+    else do
+        resultado <- registraremprestimo livroId (head usuarioLs) livros
+        case resultado of
+            Left erro -> do
+                putStrLn erro
+                _ <- getLine
+                return livros
+            Right novosLivros -> do
+                putStrLn "Empréstimo concluido!"
+                _ <- getLine
+                return novosLivros
 
 
 
@@ -313,7 +316,7 @@ input text = do
 
 relatórioHistoricoMenu :: [User] -> [Registro] -> IO ()
 relatórioHistoricoMenu users registers = do
-    userId <- input "Digite o id do usuário: " :: IO Int
+    userId <- input "Digite o numero de matricula do usuário: \n" :: IO Int
     let userLs = filter ((userId==).matricula) users
     case userLs of
         [] -> do
