@@ -17,6 +17,9 @@ stringParaLivro = readMaybe
 stringParaUser :: String -> Maybe User
 stringParaUser = readMaybe
 
+stringParaFila :: String -> Maybe Fila
+stringParaFila = readMaybe
+
 carregarDeArquivoLivro :: FilePath -> IO [Livro]
 carregarDeArquivoLivro ca = do
     co <- readFile ca
@@ -42,4 +45,5 @@ salvarEmArquivoUser :: FilePath -> [User] -> IO ()
 salvarEmArquivoUser ca co = do
     withFile ca WriteMode $ \handle -> do
         mapM_ (hPutStrLn handle.show) co
+
 
