@@ -11,30 +11,36 @@ import Persistencias
 main :: IO ()
 main = do
     hSetBuffering stdout NoBuffering
-    livros   <- carregarDeArquivoLivro "livros.txt"
+    livros   <- carregarDeArquivoLivro "biblioteca.txt"
     usuarios <- carregarDeArquivoUser "usuarios.txt"
-    (livrosAtt, usuariosAtt) <- menuPrincipal livros usuarios
+    let registros = []
+    (livrosAtt, usuariosAtt, _) <- menuPrincipal livros usuarios registros
     salvarEmArquivoUser "usuarios.txt" usuariosAtt
-    salvarEmArquivoLivro "livros.txt" livrosAtt
 
-menuPrincipal :: [Livro] -> [User] -> IO ([Livro],[User])
-menuPrincipal livros usuarios = do
+menuPrincipal :: [Livro] -> [User] -> [Registro] -> IO ([Livro], [User], [Registro])
+menuPrincipal livros usuarios registros = do
     putStrLn $ replicate 60 '\n'
-    putStrLn "   1 > Menu de livros"
-    putStrLn "   2 > Menu de usuários"
-    putStrLn "   3 > Salvar e sair"
+    putStrLn "   1  > Menu de livros"
+    putStrLn "   2  > Menu de usuários"
+    putStrLn "   3  > Relatórios"
+    putStrLn "   0  > Salvar e sair"
     input <- getLine
     case input of
         "1" -> do
             novosLivros <- menuLivro livros usuarios
-            menuPrincipal novosLivros usuarios
+            menuPrincipal novosLivros usuarios registros
         "2" -> do
             novosUsuarios <- menuUsuario usuarios
-            menuPrincipal livros novosUsuarios
-        "3" -> return (livros, usuarios)
+            menuPrincipal livros novosUsuarios registros
+        "3" -> do
+            menuRelatorios livros registros
+            menuPrincipal livros usuarios registros
+        "0" -> do
+            salvar_criarBiblioteca livros
+            return (livros, usuarios, registros)
         _ -> do
             putStrLn "Opção inválida"
-            menuPrincipal livros usuarios
+            menuPrincipal livros usuarios registros
 
 
 menuLivro :: [Livro] -> [User] -> IO [Livro]
@@ -49,7 +55,7 @@ menuLivro livros usuarios = do
     putStrLn "   5  > Listar livros"
     putStrLn "   6  > Filtrar por disponibilidade"
     putStrLn "   7  > Mostrar lista de espera"
-    putStrLn "   14 > Voltar para o menu principal"
+    putStrLn "   0 > Voltar para o menu principal"
     putStrLn "- Digite o numero da ação: "
     input <- getLine
     
@@ -79,7 +85,7 @@ menuLivro livros usuarios = do
 
         "7" -> exibirListaEsperaMenu livros
               
-        "14" -> return livros
+        "0" -> return livros
 
         _ -> do
             putStrLn "Input inválido"
@@ -109,13 +115,33 @@ menuUsuario usuarios = do
             novosUsuarios <- removerUsuarioMenu usuarios
             menuUsuario novosUsuarios
 
-        "14" -> return usuarios
+        "0" -> return usuarios
 
         _ -> do
             putStrLn "input inválido"
             menuUsuario usuarios
 
+menuRelatorios :: [Livro] -> [Registro] -> IO ()
+menuRelatorios livros registros = do
+    putStrLn "    1  > Listar empréstimos ativos"
+    putStrLn "    2  > Histórico de empréstimos de um usuário"
+    putStrLn "    3  > Livros com lista de espera"
+    putStrLn "    0  > Voltar para o menu"
+    input <- getLine
+    case input of
+        "1" -> do
+            _ <- getLine
+            menuRelatorios livros registros
 
+        "2" -> do
+            _ <- getLine
+            menuRelatorios livros registros
+            
+        "0" -> return ()
+        _ -> do
+            putStrLn "input inválido"
+            menuRelatorios livros registros
+    
 adicionarLivroMenu :: [Livro] -> IO [Livro]
 adicionarLivroMenu livros = do
     titulo <- inputString "Digite o título do livro: \n"
