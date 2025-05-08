@@ -143,7 +143,7 @@ menuRelatorios livros registros = do
             putStrLn "input inválido"
             menuRelatorios livros registros
     
-adicionarLivroMenu :: [Livro] -> IO [Livro]
+adicionarLivroMenu :: [Livro] -> IO [Livro] -- DOCUMENTADO --
 adicionarLivroMenu livros = do
     titulo <- inputString "Digite o título do livro: \n"
     autor  <- inputString "Digite o autor do livro: \n"
@@ -162,13 +162,13 @@ adicionarLivroMenu livros = do
             _ <- getLine
             return novosLivros
 
-listarLivrosMenu :: [Livro] -> IO [Livro]
+listarLivrosMenu :: [Livro] -> IO [Livro] -- DOCUMENTADO --
 listarLivrosMenu livros = do
     mapM_ (putStrLn . coutlivro) livros
     _ <- getLine
     return livros
 
-removerLivroMenu :: [Livro] -> IO [Livro]
+removerLivroMenu :: [Livro] -> IO [Livro] -- DOCUMENTADO --
 removerLivroMenu livros = do
     cod <- input "Digite o id do livro a ser removido: " :: IO Int
     case removerLivro cod livros of
@@ -180,7 +180,7 @@ removerLivroMenu livros = do
             _ <- getLine
             return novosLivros 
 
-adicionarUsuarioMenu :: [User] -> IO [User]
+adicionarUsuarioMenu :: [User] -> IO [User] -- DOCUMENTADO --
 adicionarUsuarioMenu usuarios = do
     nome       <- inputString "Digite o nome do usuario: \n"
     matricula  <- input "Digite o número de matricula do usuário: \n" :: IO Int
@@ -197,13 +197,13 @@ adicionarUsuarioMenu usuarios = do
             _ <- getLine
             return novosUsuarios
 
-listarUsuariosMenu :: [User] -> IO [User]
+listarUsuariosMenu :: [User] -> IO [User] -- DOCUMENTADO --
 listarUsuariosMenu usuarios = do
     mapM_ (putStrLn . coutusuarios) usuarios
     _ <- getLine
     return usuarios
 
-removerUsuarioMenu :: [User] -> IO [User]
+removerUsuarioMenu :: [User] -> IO [User] -- DOCUMENTADO --
 removerUsuarioMenu usuarios = do
     mat <- input "Digite o número de matrícula do usuário: "
     case removerusuario mat usuarios of
@@ -215,7 +215,7 @@ removerUsuarioMenu usuarios = do
             _ <- getLine
             return novosUsuarios
 
-registrarEmprestimoMenu :: [Livro] -> [User] -> IO [Livro]
+registrarEmprestimoMenu :: [Livro] -> [User] -> IO [Livro] -- DOCUMENTADO --
 registrarEmprestimoMenu livros usuarios = do
     idLivro <- input "Digite o id do livro: \n" :: IO Int
     matriculaUsuario <- input "Digite o numero de matricula do usuário: \n" :: IO Int
@@ -239,7 +239,7 @@ registrarEmprestimoMenu livros usuarios = do
 
 
 
-registrarDevolucoesMenu :: [Livro] -> IO [Livro]
+registrarDevolucoesMenu :: [Livro] -> IO [Livro] -- DOCUMENTADO --
 registrarDevolucoesMenu livros = do
     id <- input "Digite o código do livro: \n"
     case registrardevolucoes id livros of
@@ -252,7 +252,7 @@ registrarDevolucoesMenu livros = do
             _ <- getLine
             return novosLivros
 
-listarPorDisponibilidadeMenu :: [Livro] -> IO [Livro]
+listarPorDisponibilidadeMenu :: [Livro] -> IO [Livro] -- DOCUMENTADO --
 listarPorDisponibilidadeMenu livros = do
     status <- input "Digite o status Disponivel | Indisponivel | Emprestado\n"
     let listaFiltrada = listarPorDisponibilidade status livros
