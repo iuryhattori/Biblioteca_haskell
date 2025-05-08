@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Eta reduce" #-}
 module Funcoes (
     adicionarlivro,
     coutlivro,
@@ -11,7 +13,8 @@ module Funcoes (
     exibirlistaespera,
     registraremprestimo,
     registrardevolucoes,
-    listarPorDisponibilidade
+    listarPorDisponibilidade,
+    relatórioHistorico
 ) where
 import Tipos
 
@@ -104,3 +107,10 @@ listaespera user queue =    if elem user (usuarios queue)
 exibirlistaespera :: Livro -> String
 exibirlistaespera livro =
     unlines (map coutusuarios (fila livro)) ++ "\nTotal de usuários na fia: " ++ show (length(fila livro))
+
+
+
+-- Relatórios
+
+relatórioHistorico :: User -> [Registro] -> [Registro]
+relatórioHistorico u = filter ((/= u).historico_usuario)

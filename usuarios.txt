@@ -1,1 +1,1 @@
-
+User {nome = "AiKatherine", matricula = 13, email = "kg@mail.com"}

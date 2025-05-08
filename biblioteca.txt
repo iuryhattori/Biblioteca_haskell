@@ -1,0 +1,1 @@
+Livro {titulo = "Sla", autor = "Idk", ano = "2005", cod = 10, status = Disponivel, dono = Nothing, fila = []}

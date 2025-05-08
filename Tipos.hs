@@ -18,9 +18,9 @@ data User = User
     , email     :: String
     } deriving (Show, Read, Eq)
 
+-- ? type Fila = [User]
 data Fila = Fila
-    {
-        usuarios :: [User]
+    { usuarios :: [User]
     } deriving (Show, Read, Eq)
 
 data Registro = Registro

@@ -33,7 +33,7 @@ menuPrincipal livros usuarios registros = do
             novosUsuarios <- menuUsuario usuarios
             menuPrincipal livros novosUsuarios registros
         "3" -> do
-            menuRelatorios livros registros
+            menuRelatorios usuarios livros registros
             menuPrincipal livros usuarios registros
         "0" -> do
             salvar_criarBiblioteca livros
@@ -58,7 +58,7 @@ menuLivro livros usuarios = do
     putStrLn "   0 > Voltar para o menu principal"
     putStrLn "- Digite o numero da ação: "
     input <- getLine
-    
+
     case input of
         "1" -> do
             novosLivros <- adicionarLivroMenu livros
@@ -84,7 +84,7 @@ menuLivro livros usuarios = do
             menuLivro livros usuarios
 
         "7" -> exibirListaEsperaMenu livros
-              
+
         "0" -> return livros
 
         _ -> do
@@ -98,7 +98,7 @@ menuUsuario usuarios = do
     putStrLn "   2  > Listar usuários"
     putStrLn "   3  > Remover usuário"
     putStrLn "   4  > Adicionar à lista de espera"
-    putStrLn "   14 > Voltar para o menu"
+    putStrLn "   0 > Voltar para o menu"
     putStrLn "- Digite o numero da ação: "
     input <- getLine
 
@@ -114,15 +114,20 @@ menuUsuario usuarios = do
         "3" -> do
             novosUsuarios <- removerUsuarioMenu usuarios
             menuUsuario novosUsuarios
+        -- TODO: implementar
+        -- "4" -> do
+        --     novosUsuarios <- adicionarUsuarioAEsperaMenu usuarios
+        --     menuUsuario novosUsuarios
 
         "0" -> return usuarios
 
         _ -> do
             putStrLn "input inválido"
+            _ <- getChar
             menuUsuario usuarios
 
-menuRelatorios :: [Livro] -> [Registro] -> IO ()
-menuRelatorios livros registros = do
+menuRelatorios :: [User] -> [Livro] -> [Registro] -> IO ()
+menuRelatorios usuarios livros registros = do
     putStrLn "    1  > Listar empréstimos ativos"
     putStrLn "    2  > Histórico de empréstimos de um usuário"
     putStrLn "    3  > Livros com lista de espera"
@@ -130,18 +135,16 @@ menuRelatorios livros registros = do
     input <- getLine
     case input of
         "1" -> do
-            _ <- getLine
-            menuRelatorios livros registros
+            menuRelatorios usuarios livros registros
 
         "2" -> do
-            _ <- getLine
-            menuRelatorios livros registros
-            
+            relatórioHistoricoMenu usuarios registros
+
         "0" -> return ()
         _ -> do
             putStrLn "input inválido"
-            menuRelatorios livros registros
-    
+            menuRelatorios usuarios livros registros
+
 adicionarLivroMenu :: [Livro] -> IO [Livro]
 adicionarLivroMenu livros = do
     titulo <- inputString "Digite o título do livro: \n"
@@ -184,16 +187,16 @@ removerLivroMenu livros = do
                 Right novosLivros -> do
                     putStrLn "Livro removido!"
                     _ <- getLine
-                    return novosLivros 
+                    return novosLivros
 
 adicionarUsuarioMenu :: [User] -> IO [User]
 adicionarUsuarioMenu usuarios = do
     nome       <- inputString "Digite o nome do usuario: \n"
     matricula  <- input "Digite o número de matricula do usuário: \n" :: IO Int
     email      <- inputString "Digite o email do usuário: \n"
-    
+
     let novo = User nome matricula email
-    
+
     case adicionarusuario novo usuarios of
         Left erro -> do
             putStrLn erro
@@ -226,7 +229,7 @@ removerUsuarioMenu usuarios = do
                 Right novosUsuarios -> do
                     putStrLn "Usuário removido!"
                     _ <- getLine
-                    return novosUsuarios 
+                    return novosUsuarios
 
 registrarEmprestimoMenu :: [Livro] -> [User] -> IO [Livro]
 registrarEmprestimoMenu livros usuarios = do
@@ -303,7 +306,24 @@ input text = do
             input text
 
 
- 
+-- Relatórios --
 
-
-
+relatórioHistoricoMenu :: [User] -> [Registro] -> IO ()
+relatórioHistoricoMenu users registers = do
+    userId <- input "Digite o id do usuário: " :: IO Int
+    let userLs = filter ((userId==).matricula) users
+    case userLs of
+        [] -> do
+            putStrLn "Id inválido!!"
+            _ <- getChar
+            return ()
+        (_:_:_) -> do
+            putStrLn "Multiplos Ids!!"
+            _ <- getChar
+            return ()
+        [user] -> do
+            let regs = relatórioHistorico user registers
+            putStrLn $ "Histórico de " ++ show (nome user) ++ ":"
+            putStrLn $ unlines $ map show regs
+            _ <- getChar
+            return ()
