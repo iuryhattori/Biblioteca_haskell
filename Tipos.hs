@@ -8,6 +8,8 @@ data Livro = Livro
     , ano       :: String
     , cod       :: Int
     , status    :: Status
+    , dono      :: Maybe User
+    , fila      :: [User]
     } deriving (Show, Read, Eq)
 
 data User = User
@@ -16,10 +18,12 @@ data User = User
     , email     :: String
     } deriving (Show, Read, Eq)
 
--- ? type Fila = [User]
-data Fila = Fila
-    { usuarios :: [User]
-    } deriving (Show, Read, Eq)
+
+data Fila = Fila {
+    usuarios :: [User]  
+}
+
+
 
 data Registro = Registro
     { usuarioId :: Int
