@@ -101,7 +101,6 @@ listaespera user queue =    if elem user (usuarios queue)
                             then Left "Erro! Usuário já está na fila"
                             else Right queue { usuarios = user : usuarios queue}
 
-
 exibirlistaespera :: Livro -> String
 exibirlistaespera livro =
     unlines (map coutusuarios (fila livro)) ++ "\nTotal de usuários na fia: " ++ show (length(fila livro))
