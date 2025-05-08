@@ -90,3 +90,5 @@ exibirlistaespera fil =
     unlines (map coutusuarios (usuarios fil)) ++
     "\nTotal de usuários fila: " ++ show (length (usuarios fil))
 
+listarEmprestimosAtivos :: [Livro] -> [Livro]
+listarEmprestimosAtivos = listarPorDisponibilidade Emprestado
