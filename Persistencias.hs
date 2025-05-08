@@ -1,12 +1,12 @@
-module Persistencias(
-    salvarEmArquivoLivro,
+module Persistencias (
+    salvarEmArquivoLivro,  
     carregarDeArquivoLivro,
     carregarDeArquivoUser,
     salvarEmArquivoUser,
     salvar_criarBiblioteca
 ) where
+
 import Tipos
-import Funcoes
 import System.IO
 import Data.Maybe (mapMaybe)
 import Text.Read (readMaybe)
@@ -35,15 +35,16 @@ salvar_criarBiblioteca livros = do
         else
             putStrLn "Até a próxima"
 
-
 stringParaLivro :: String -> Maybe Livro
 stringParaLivro = readMaybe
 
 stringParaUser :: String -> Maybe User
 stringParaUser = readMaybe
 
-stringParaFila :: String -> Maybe Fila
-stringParaFila = readMaybe
+salvarEmArquivoLivro :: FilePath -> [Livro] -> IO ()
+salvarEmArquivoLivro ca livros = do
+    withFile ca WriteMode $ \handle -> do
+        mapM_ (hPutStrLn handle . show) livros
 
 carregarDeArquivoLivro :: FilePath -> IO [Livro]
 carregarDeArquivoLivro ca = do
@@ -57,11 +58,6 @@ carregarDeArquivoLivro ca = do
             evaluate (length livros)
             return livros
 
-salvarEmArquivoLivro :: FilePath -> [Livro] -> IO ()
-salvarEmArquivoLivro ca co = do
-    withFile ca WriteMode $ \handle -> do
-        mapM_ (hPutStrLn handle.show) co
-
 carregarDeArquivoUser :: FilePath -> IO [User]
 carregarDeArquivoUser ca = do
     co <- readFile ca
@@ -71,8 +67,6 @@ carregarDeArquivoUser ca = do
     return usuarios
 
 salvarEmArquivoUser :: FilePath -> [User] -> IO ()
-salvarEmArquivoUser ca co = do
+salvarEmArquivoUser ca usuarios = do
     withFile ca WriteMode $ \handle -> do
-        mapM_ (hPutStrLn handle.show) co
-
-
+        mapM_ (hPutStrLn handle . show) usuarios
