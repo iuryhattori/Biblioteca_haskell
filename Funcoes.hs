@@ -88,10 +88,10 @@ registraremprestimo id user livros =
                         return $ Left "Ok!"
                 Indisponivel -> return $ Left "Livro está indisponível"
 
-registrardevolucoes :: String -> [Livro] -> Either String [Livro]
+registrardevolucoes :: Int -> [Livro] -> Either String [Livro]
 registrardevolucoes t livros =
-    if elem t (map titulo livros)
-    then Right (map (\livro -> if titulo livro == t then livro {status = Disponivel, dono = Nothing} else livro) livros)
+    if elem t (map cod livros)
+    then Right (map (\livro -> if cod livro == t then livro {status = Disponivel, dono = Nothing} else livro) livros)
     else Left "Erro, livro não encontrado"
 
 listarPorDisponibilidade :: Status -> [Livro] -> [Livro]
