@@ -43,6 +43,11 @@ menuPrincipal livros usuarios registros = do
             menuPrincipal livros usuarios registros
 
 
+confirmation :: a -> IO a
+confirmation x = do
+    _ <- getChar
+    return x
+
 menuLivro :: [Livro] -> [User] -> IO [Livro]
 menuLivro livros usuarios = do
     -- menu de ações --
@@ -124,8 +129,7 @@ menuUsuario usuarios = do
 
         _ -> do
             putStrLn "input inválido"
-            _ <- getChar
-            menuUsuario usuarios
+            confirmation usuarios
 
 menuRelatorios :: [User] -> [Livro] -> [Registro] -> IO ()
 menuRelatorios usuarios livros registros = do
@@ -159,17 +163,15 @@ adicionarLivroMenu livros = do
     case adicionarlivro novo livros of
         Left erro -> do
             putStrLn erro
-            return livros
+            confirmation livros
         Right novosLivros -> do
             putStrLn "Livro adicionado com sucesso!"
-            _ <- getLine
-            return novosLivros
+            confirmation novosLivros
 
 listarLivrosMenu :: [Livro] -> IO [Livro] -- DOCUMENTADO --
 listarLivrosMenu livros = do
     mapM_ (putStrLn . coutlivro) livros
-    _ <- getLine
-    return livros
+    confirmation livros
 
 removerLivroMenu :: [Livro] -> IO [Livro] -- DOCUMENTADO --
 removerLivroMenu livros = do
@@ -177,17 +179,15 @@ removerLivroMenu livros = do
     let livroParaRemover = filter (\l -> cod l == codLivro) livros
     if length livroParaRemover /= 1 then do
             putStrLn "Erro, livro não encontrado"
-            _ <- getLine
-            return livros
+            confirmation livros
     else do
         case removerLivro codLivro livros of
             Left erro -> do
                 putStrLn erro
-                return livros
+                confirmation livros
             Right novosLivros -> do
                 putStrLn "Livro removido!"
-                _ <- getLine
-                return novosLivros 
+                confirmation novosLivros 
 
 adicionarUsuarioMenu :: [User] -> IO [User] -- DOCUMENTADO --
 adicionarUsuarioMenu usuarios = do
@@ -200,17 +200,15 @@ adicionarUsuarioMenu usuarios = do
     case adicionarusuario novo usuarios of
         Left erro -> do
             putStrLn erro
-            return usuarios
+            confirmation usuarios
         Right novosUsuarios -> do
             putStrLn "Usuario cadastrado com sucesso!"
-            _ <- getLine
-            return novosUsuarios
+            confirmation novosUsuarios
 
 listarUsuariosMenu :: [User] -> IO [User] -- DOCUMENTADO --
 listarUsuariosMenu usuarios = do
     mapM_ (putStrLn . coutusuarios) usuarios
-    _ <- getLine
-    return usuarios
+    confirmation usuarios
 
 removerUsuarioMenu :: [User] -> IO [User] -- DOCUMENTADO --
 removerUsuarioMenu usuarios = do
@@ -219,21 +217,18 @@ removerUsuarioMenu usuarios = do
     case usuarioParaRemover of
         [] -> do
             putStrLn "Erro, usuário não encontrado"
-            _ <- getLine
-            return usuarios
+            confirmation usuarios
         (_:_:_) -> do
             putStrLn "Multiplos usuarios!!"
-            _ <- getLine
-            return usuarios
+            confirmation usuarios
         [usu] -> do
             case removerusuario idUsuario usuarios of
                 Left erro -> do
                     putStrLn erro
-                    return usuarios
+                    confirmation usuarios
                 Right novosUsuarios -> do
                     putStrLn "Usuário removido!"
-                    _ <- getLine
-                    return novosUsuarios 
+                    confirmation novosUsuarios 
 
 registrarEmprestimoMenu :: [Livro] -> [User] -> IO [Livro] -- DOCUMENTADO --
 registrarEmprestimoMenu livros usuarios = do
@@ -243,19 +238,16 @@ registrarEmprestimoMenu livros usuarios = do
     let livroLs   = filter ((livroId==).cod)         livros
     if length usuarioLs /= 1 || length livroLs /= 1 then do
         putStrLn "Usuário não encontrado" -- tratar se achar mais de 1?
-        _ <- getLine
-        return livros
+        confirmation livros
     else do
         resultado <- registraremprestimo livroId (head usuarioLs) livros
         case resultado of
             Left erro -> do
                 putStrLn erro
-                _ <- getLine
-                return livros
+                confirmation livros
             Right novosLivros -> do
                 putStrLn "Empréstimo concluido!"
-                _ <- getLine
-                return novosLivros
+                confirmation novosLivros
 
 
 
@@ -265,20 +257,17 @@ registrarDevolucoesMenu livros = do
     case registrardevolucoes id livros of
         Left erro -> do
             putStrLn erro
-            _ <- getLine
-            return livros
+            confirmation livros
         Right novosLivros -> do
             putStrLn "Devolução concluida!"
-            _ <- getLine
-            return novosLivros
+            confirmation novosLivros
 
 listarPorDisponibilidadeMenu :: [Livro] -> IO [Livro] -- DOCUMENTADO --
 listarPorDisponibilidadeMenu livros = do
     status <- input "Digite o status Disponivel | Indisponivel | Emprestado\n"
     let listaFiltrada = listarPorDisponibilidade status livros
     mapM_ (putStrLn.coutlivro) listaFiltrada
-    _ <- getLine
-    return livros
+    confirmation livros
 
 exibirListaEsperaMenu :: [Livro] -> IO [Livro]
 exibirListaEsperaMenu livros = do
@@ -288,12 +277,10 @@ exibirListaEsperaMenu livros = do
     case filtraLivro of
         [] -> do
             putStrLn "Livro não encontrado"
-            _ <- getLine
-            return livros
+            confirmation livros
         (livro:_) -> do
             putStrLn (exibirlistaespera livro)
-            _ <- getLine
-            return livros
+            confirmation livros
 
 inputString :: String -> IO String
 inputString text = do
@@ -312,6 +299,42 @@ input text = do
             input text
 
 
+
+editarLivroMenu :: [Livro] -> IO [Livro]
+editarLivroMenu books = do
+    id <- input "Digite o id do livro a ser editado: \n" :: IO Int
+    let bookLs = filter ((id==).cod) books
+    if length bookLs /= 1 then do
+        putStrLn "Erro, livro não encontrado"
+        confirmation books
+    else do
+        let book = head bookLs
+        putStrLn $ "Editando " ++ show book
+        newTitle   <- inputString "Digite o novo título do livro: \n"
+        newAuthor  <- inputString "Digite o novo autor do livro: \n"
+        newYear    <- inputString "Digite o novo ano do livro: \n"
+        let newBook  = book {titulo = newTitle, autor = newAuthor, ano = newYear}
+        let newBooks = map (\l -> if cod l == id then newBook else l) books
+        putStrLn "Livro editado com sucesso!"
+        confirmation newBooks
+
+editarUsuarioMenu :: [User] -> IO [User]
+editarUsuarioMenu users = do
+    id <- input "Digite o id do usuário a ser editado: \n" :: IO Int
+    let userLs = filter ((id==).matricula) users
+    if length userLs /= 1 then do
+        putStrLn "Erro, usuário não encontrado"
+        confirmation users
+    else do
+        let user = head userLs
+        putStrLn $ "Editando " ++ show user
+        newName  <- inputString "Digite o novo nome do usuário: \n"
+        newEmail <- inputString "Digite o novo email do usuário: \n"
+        let newUser  = user {nome = newName, email = newEmail}
+        let newUsers = map (\u -> if matricula u == id then newUser else u) users
+        putStrLn "Usuário editado com sucesso!"
+        confirmation newUsers
+
 -- Relatórios --
 
 relatórioHistoricoMenu :: [User] -> [Registro] -> IO ()
@@ -321,15 +344,12 @@ relatórioHistoricoMenu users registers = do
     case userLs of
         [] -> do
             putStrLn "Id inválido!!"
-            _ <- getChar
-            return ()
+            confirmation ()
         (_:_:_) -> do
             putStrLn "Multiplos Ids!!"
-            _ <- getChar
-            return ()
+            confirmation ()
         [user] -> do
             let regs = relatórioHistorico user registers
             putStrLn $ "Histórico de " ++ show (nome user) ++ ":"
             putStrLn $ unlines $ map show regs
-            _ <- getChar
-            return ()
+            confirmation ()
