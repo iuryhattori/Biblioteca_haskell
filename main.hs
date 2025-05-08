@@ -13,13 +13,12 @@ main = do
     hSetBuffering stdout NoBuffering
     livros   <- carregarDeArquivoLivro "livros.txt"
     usuarios <- carregarDeArquivoUser "usuarios.txt"
-    let filaInicial = Fila []
-    (livrosAtt, usuariosAtt, _) <- menuPrincipal livros usuarios filaInicial
+    (livrosAtt, usuariosAtt) <- menuPrincipal livros usuarios
     salvarEmArquivoUser "usuarios.txt" usuariosAtt
     salvarEmArquivoLivro "livros.txt" livrosAtt
 
-menuPrincipal :: [Livro] -> [User] -> Fila -> IO ([Livro],[User], Fila)
-menuPrincipal livros usuarios fila = do
+menuPrincipal :: [Livro] -> [User] -> IO ([Livro],[User])
+menuPrincipal livros usuarios = do
     putStrLn $ replicate 60 '\n'
     putStrLn "   1 > Menu de livros"
     putStrLn "   2 > Menu de usuários"
@@ -27,28 +26,29 @@ menuPrincipal livros usuarios fila = do
     input <- getLine
     case input of
         "1" -> do
-            novosLivros <- menuLivro livros
-            menuPrincipal novosLivros usuarios fila
+            novosLivros <- menuLivro livros usuarios
+            menuPrincipal novosLivros usuarios
         "2" -> do
-            (novosUsuarios, novaFila) <- menuUsuario usuarios fila
-            menuPrincipal livros novosUsuarios novaFila
-        "3" -> return (livros, usuarios, fila)
+            novosUsuarios <- menuUsuario usuarios
+            menuPrincipal livros novosUsuarios
+        "3" -> return (livros, usuarios)
         _ -> do
             putStrLn "Opção inválida"
-            menuPrincipal livros usuarios fila
+            menuPrincipal livros usuarios
 
 
-menuLivro :: [Livro] -> IO [Livro]
-menuLivro livros = do
+menuLivro :: [Livro] -> [User] -> IO [Livro]
+menuLivro livros usuarios = do
     -- menu de ações --
     putStrLn $ replicate 60 '\n' -- limpa tudo
     putStrLn "- O que gostaria de realizar?:"
     putStrLn "   1  > Cadastrar livros"
-    putStrLn "   2  > Empréstimo e devolução"
+    putStrLn "   2  > Cadastrar Empréstimo"
     putStrLn "   3  > Relatórios"
     putStrLn "   4  > Remover livro"
     putStrLn "   5  > Listar livros"
     putStrLn "   6  > Filtrar por disponibilidade"
+    putStrLn "   7  > Mostrar lista de espera"
     putStrLn "   14 > Voltar para o menu principal"
     putStrLn "- Digite o numero da ação: "
     input <- getLine
@@ -56,31 +56,37 @@ menuLivro livros = do
     case input of
         "1" -> do
             novosLivros <- adicionarLivroMenu livros
-            menuLivro novosLivros
+            menuLivro novosLivros usuarios
+
+        "2" -> do
+            novosLivros <- registrarEmprestimoMenu livros usuarios
+            menuLivro novosLivros usuarios
 
         "3" -> do
-            menuLivro livros
+            menuLivro livros usuarios
 
         "4" -> do
             novosLivros <- removerLivroMenu livros
-            menuLivro novosLivros
+            menuLivro novosLivros usuarios
 
         "5" -> do
             listaLivros <- listarLivrosMenu livros
-            menuLivro listaLivros
+            menuLivro listaLivros usuarios
 
         "6" -> do
             listaFiltrada <- listarPorDisponibilidadeMenu livros
-            menuLivro livros
+            menuLivro livros usuarios
 
+        "7" -> exibirListaEsperaMenu livros
+              
         "14" -> return livros
 
         _ -> do
             putStrLn "Input inválido"
-            menuLivro livros
+            menuLivro livros usuarios
 
-menuUsuario :: [User] -> Fila -> IO ([User], Fila)
-menuUsuario usuarios fila = do
+menuUsuario :: [User] -> IO [User]
+menuUsuario usuarios = do
     putStrLn $ replicate 60 '\n'
     putStrLn "   1  > Cadastrar usuarios"
     putStrLn "   2  > Listar usuários"
@@ -93,25 +99,21 @@ menuUsuario usuarios fila = do
     case input of
         "1" -> do
             novosUsuarios <- adicionarUsuarioMenu usuarios
-            menuUsuario novosUsuarios fila
+            menuUsuario novosUsuarios
 
         "2" -> do
             listaUsuarios <- listarUsuariosMenu usuarios
-            menuUsuario listaUsuarios fila
+            menuUsuario listaUsuarios
 
         "3" -> do
             novosUsuarios <- removerUsuarioMenu usuarios
-            menuUsuario novosUsuarios fila
+            menuUsuario novosUsuarios
 
-        "4" -> do
-            novaFila <- listaEsperaMenu usuarios fila
-            menuUsuario usuarios novaFila  
-
-        "14" -> return (usuarios, fila)
+        "14" -> return usuarios
 
         _ -> do
             putStrLn "input inválido"
-            menuUsuario usuarios fila
+            menuUsuario usuarios
 
 
 adicionarLivroMenu :: [Livro] -> IO [Livro]
@@ -122,7 +124,7 @@ adicionarLivroMenu livros = do
     cod    <- input "Digite o id do livro: \n" :: IO Int
     let status = Disponivel
 
-    let novo = Livro titulo autor ano cod status Nothing
+    let novo = Livro titulo autor ano cod status Nothing []
 
     case adicionarlivro novo livros of
         Left erro -> do
@@ -211,7 +213,8 @@ registrarEmprestimoMenu livros usuarios = do
             _ <- getLine
             return livros
         (usuario:_) -> do
-            case registraremprestimo tituloLivro usuario livros of
+            resultado <- registraremprestimo tituloLivro usuario livros
+            case resultado of
                 Left erro -> do
                     putStrLn erro
                     _ <- getLine
@@ -242,29 +245,20 @@ listarPorDisponibilidadeMenu livros = do
     _ <- getLine
     return livros
 
-listaEsperaMenu :: [User] -> Fila -> IO Fila
-listaEsperaMenu usuarios fila = do
-    idUsuario <- input "Digite a matrícula do usuário que vai ser adicionado à fila: \n" :: IO Int
-    let buscar = filter (\u -> matricula u == idUsuario) usuarios
-    case buscar of
+exibirListaEsperaMenu :: [Livro] -> IO [Livro]
+exibirListaEsperaMenu livros = do
+    putStrLn "Digite o título do livro para exibir a lista de espera: "
+    tituloLivro <- inputString ""
+    let filtraLivro = filter (\livro -> titulo livro == tituloLivro) livros
+    case filtraLivro of
         [] -> do
-            putStrLn "Usuário não encontrado"
+            putStrLn "Livro não encontrado"
             _ <- getLine
-            return fila
-        (usuario:_) ->
-            case listaespera usuario fila of
-                Left erro -> do
-                    putStrLn erro
-                    _ <- getLine
-                    return fila
-                Right novaFila -> do
-                    putStrLn "Usuário adicionado à fila!"
-                    _ <- getLine
-                    return novaFila
-
-exibirListaEsperaMenu :: [User] -> IO [User]
-exibirListaEsperaMenu usuarios = do
-    return usuarios
+            return livros
+        (livro:_) -> do
+            putStrLn (exibirlistaespera livro)
+            _ <- getLine
+            return livros
 
 inputString :: String -> IO String
 inputString text = do
@@ -283,6 +277,7 @@ input text = do
             input text
 
 
+ 
 
 
 
