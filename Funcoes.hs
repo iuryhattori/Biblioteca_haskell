@@ -4,7 +4,6 @@ module Funcoes (
     removerLivro,
     adicionarusuario,
     coutusuarios,
-    listarusuarios,
     removerusuario,
     listaespera,
     exibirlistaespera,
@@ -52,9 +51,6 @@ coutusuarios mostrarUser =
     "Nome: " ++ show (nome mostrarUser) ++ "; " ++ 
     "Matrícula: " ++ show ( matricula mostrarUser) ++ "; " ++
     "Email: " ++ show (email mostrarUser) 
-
-listarusuarios :: [User] -> String
-listarusuarios users = unlines (map coutusuarios users)
 
 removerusuario :: Int -> [User] -> Either String [User]
 removerusuario id usuarios =
