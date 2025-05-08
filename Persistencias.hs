@@ -43,4 +43,3 @@ salvarEmArquivoUser ca co = do
     withFile ca WriteMode $ \handle -> do
         mapM_ (hPutStrLn handle.show) co
 
-
