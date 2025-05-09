@@ -127,6 +127,7 @@ menuLivro livros usuarios registros = do
 
 menuRelatorios :: [Livro] -> [User] -> [Registro] -> IO ()
 menuRelatorios livros usuarios registros = do
+    putStrLn $ replicate 60 '\n'
     putStrLn "\n--- Menu de Relatórios ---"
     putStrLn "    1  > Listar empréstimos ativos"
     putStrLn "    2  > Histórico de empréstimos de um usuário"
@@ -137,14 +138,13 @@ menuRelatorios livros usuarios registros = do
         "1" -> do
             let rel = relatórioEmprestimosAtivos livros usuarios registros
             mapM_ (\(l, u) -> putStrLn $ coutlivro l ++ "\nEmprestado para: " ++ nome u) rel
+            _ <- getChar
             menuRelatorios livros usuarios registros
 
         "2" -> do
-            putStrLn "Digite a matrícula do usuário:"
-            mat <- readLn
-            case find (\u -> matricula u == mat) usuarios of
-                Nothing -> putStrLn "Usuário não encontrado" >> menuRelatorios livros usuarios registros
-                Just u -> mapM_ print (relatórioHistorico u registros) >> menuRelatorios livros usuarios registros
+            relatórioHistoricoMenu usuarios registros livros
+            _ <- getChar
+            menuRelatorios livros usuarios registros
 
         "3" -> do
             mapM_ (\l -> putStrLn ("Livro: " ++ titulo l ++ "\n" ++ exibirlistaespera l)) livros
@@ -353,22 +353,28 @@ editarUsuarioMenu users books = do
 
 -- Relatórios --
 
-relatórioHistoricoMenu :: [User] -> [Registro] -> IO ()
-relatórioHistoricoMenu users registers = do
+relatórioHistoricoMenu :: [User] -> [Registro] -> [Livro] -> IO ()
+relatórioHistoricoMenu users registers livros = do
     userId <- input "Digite o numero de matricula do usuário: \n" :: IO Int
-    let userLs = filter ((userId==).matricula) users
+    let userLs = filter ((userId ==) . matricula) users
     case userLs of
         [] -> do
             putStrLn "Id inválido!!"
             confirmation ()
         (_:_:_) -> do
-            putStrLn "Multiplos Ids!!"
+            putStrLn "Múltiplos Ids!!"
             confirmation ()
         [user] -> do
-            let regs = relatórioHistorico user registers
-            putStrLn $ "Histórico de " ++ show (nome user) ++ ":"
-            putStrLn $ unlines $ map show regs
+            let regs = filter ((== userId) . usuarioId) registers
+                registrosComLivro = map (\r -> (r, buscaLivro (livroId r))) regs
+                buscaLivro lid = head (filter ((== lid) . cod) livros)
+            putStrLn $ "Histórico de " ++ nome user ++ ":"
+            mapM_ printRegistro registrosComLivro
             confirmation ()
+  where
+    printRegistro (reg, livro) = putStrLn $
+        "Livro: " ++ titulo livro ++
+        " | Status: " ++ show (stat reg)
 
 confirmation :: a -> IO a
 confirmation x = do
