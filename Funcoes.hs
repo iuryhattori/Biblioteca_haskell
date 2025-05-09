@@ -78,7 +78,7 @@ removerDaFila us livro = livro { dono = sHead, fila = sTail, status = if null us
             users = case dono livro of 
                 Just d  -> d:fila livro
                 Nothing -> fila livro
-            (sHead, sTail) = case users of
+            (sHead, sTail) = case filter (/=us) users of
                 []     -> (Nothing, [])
                 (x:xs) -> (Just x, xs)
 
@@ -93,7 +93,7 @@ registrarDevolucoes t livros registros =
     livroAtt livro
         | cod livro == t =
             case dono livro of
-                Just _  -> livro { dono = Nothing, status = Disponivel }
+                Just u  -> removerDaFila u livro
                 Nothing -> livro
         | otherwise = livro
 
