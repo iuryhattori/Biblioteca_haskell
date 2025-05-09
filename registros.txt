@@ -1,0 +1,1 @@
+Registro {usuarioId = 0, livroId = 0, stat = Emprestado}

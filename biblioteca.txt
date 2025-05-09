@@ -1,3 +1,4 @@
+Livro {titulo = "0", autor = "0", ano = 0, cod = 0, status = Emprestado, dono = Just (User {nome = "Mark", matricula = 0, email = "ska"}), fila = [User {nome = "C\225ssia", matricula = 1, email = "cs"},User {nome = "AiKatherine", matricula = -1, email = "kg@mail.com"}]}
 Livro {titulo = "2", autor = "2", ano = 2, cod = 2, status = Disponivel, dono = Nothing, fila = []}
 Livro {titulo = "Mar, c\233u e Lua", autor = "kg", ano = 8, cod = 8, status = Disponivel, dono = Nothing, fila = []}
 Livro {titulo = "Sla", autor = "Idk", ano = 200, cod = 11, status = Disponivel, dono = Nothing, fila = []}
