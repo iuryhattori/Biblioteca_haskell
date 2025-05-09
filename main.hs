@@ -7,6 +7,7 @@ import Tipos
 import Funcoes
 import Persistencias
 
+
 main :: IO ()
 main = do
     hSetBuffering stdout NoBuffering
@@ -49,7 +50,13 @@ menuPrincipal livros usuarios registros = do
             menuPrincipal novosLivros usuarios novosRegistros
 
         "4" -> do
-            menuRelatorios livros usuarios registros
+            relatorio <- menuRelatorios livros registros
+            menuPrincipal livros usuarios registros
+        "5" -> do
+            _ <- getLine
+            menuPrincipal livros usuarios registros
+        "6" -> do
+            _ <- getLine
             menuPrincipal livros usuarios registros
         "5" -> do
             novosLivros <- editarLivroMenu livros
@@ -135,21 +142,13 @@ menuRelatorios livros usuarios registros = do
     input <- getLine
     case input of
         "1" -> do
-            let rel = relatórioEmprestimosAtivos livros usuarios registros
-            mapM_ (\(l, u) -> putStrLn $ coutlivro l ++ "\nEmprestado para: " ++ nome u) rel
-            menuRelatorios livros usuarios registros
+            _ <- getLine
+            menuRelatorios livros registros
 
         "2" -> do
-            putStrLn "Digite a matrícula do usuário:"
-            mat <- readLn
-            case find (\u -> matricula u == mat) usuarios of
-                Nothing -> putStrLn "Usuário não encontrado" >> menuRelatorios livros usuarios registros
-                Just u -> mapM_ print (relatórioHistorico u registros) >> menuRelatorios livros usuarios registros
-
-        "3" -> do
-            mapM_ (\l -> putStrLn ("Livro: " ++ titulo l ++ "\n" ++ exibirlistaespera l)) livros
-            menuRelatorios livros usuarios registros
-
+            _ <- getLine
+            menuRelatorios livros registros
+            
         "0" -> return ()
 
         _ -> putStrLn "input inválido" >> menuRelatorios livros usuarios registros
