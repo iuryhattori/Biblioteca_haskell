@@ -13,9 +13,11 @@ module Funcoes (
     registrarDevolucao,
     listarPorDisponibilidade,
     relatórioHistorico,
-    relatórioEmprestimosAtivos
+    relatórioEmprestimosAtivos,
+    registrarDevolucoes
 ) where
 import Tipos
+import Data.Char
 
 -- pega um livro e uma lista e contatena o livro com a lista
 adicionarlivro:: Livro -> [Livro] -> Either String [Livro]
@@ -59,40 +61,64 @@ coutusuarios mostrarUser =
     "Matrícula: " ++ show ( matricula mostrarUser) ++ "; " ++
     "Email: " ++ show (email mostrarUser) 
 -- remove um usuário com base num inteiro de entrada
-removerusuario :: User -> [User] -> [Livro] -> Either String ([User], [Livro])
-removerusuario us usuarios livros =
-    if elem us usuarios
-        then do
-            let usuariosRestantes = filter (\u -> u /= us) usuarios
-            let livrosAtualizados = map (removerDaFila us) livros
-            Right (usuariosRestantes, livrosAtualizados)
+removerusuario :: Int -> [User] -> [Livro] -> [Registro] -> Either String ([User], [Livro], [Registro])
+removerusuario us usuarios livros registros = do
+    let u = head $ filter ((us==).matricula) usuarios
+    let id = matricula u
+    if elem u usuarios then do
+            let usuariosRestantes = filter ((us/=).matricula) usuarios
+            let livrosAtualizados = map (removerDaFila u) livros
+            let registrosAtualizados = filter ((/= id).usuarioId) registros
+            Right (usuariosRestantes, livrosAtualizados, registrosAtualizados)
         else Left "Erro! Usuário não cadastrado"
 
 removerDaFila :: User -> Livro -> Livro
-removerDaFila us livro = livro { fila = filter (/= us) (fila livro) }
+removerDaFila us livro = livro { dono = sHead, fila = sTail, status = if null users then Disponivel else Emprestado }
+        where
+            users = case dono livro of 
+                Just d  -> d:fila livro
+                Nothing -> fila livro
+            (sHead, sTail) = case users of
+                []     -> (Nothing, [])
+                (x:xs) -> (Just x, xs)
+
+
+registrarDevolucoes :: Int -> [Livro] -> [Registro] -> Either String ([Livro], [Registro])
+registrarDevolucoes t livros registros =
+    if t `elem` map cod livros
+    then Right (map livroAtt livros, registrosAtualizados)
+    else Left "Erro, livro não encontrado"
+  where
+    registrosAtualizados = filter ((/= t) . livroId) registros
+    livroAtt livro
+        | cod livro == t =
+            case dono livro of
+                Just _  -> livro { dono = Nothing, status = Disponivel }
+                Nothing -> livro
+        | otherwise = livro
 
 
 
 
-registraremprestimo :: Int -> User -> [Livro] -> IO (Either String [Livro])
-registraremprestimo id user livros =
+registraremprestimo :: Int -> User -> [Livro] -> [Registro] -> IO (Either String ([Livro], [Registro]))
+registraremprestimo id user livros registros =
     case break (\l -> cod l == id) livros of
         (_, []) -> return $ Left "Erro: livro não encontrado"
         (antes, livro:depois) ->
             case status livro of
                 Disponivel -> do
                     let livroEmprestado = livro {status = Emprestado, dono = Just user}
-                    return $ Right (antes ++ [livroEmprestado] ++ depois)
+                    return $ Right (antes ++ [livroEmprestado] ++ depois, registros ++ [Registro (matricula user) id Emprestado])
                 Emprestado -> do
-                    putStrLn "Livro indisponível, gostaria de entrar na lista de espera? sim/não"
+                    putStrLn "Livro indisponível, gostaria de entrar na lista de espera? (S/N)"
                     resposta <- getLine
-                    if resposta == "sim" then
-                        if user `elem` fila livro then
+                    if map toUpper resposta == "S" then do
+                        if user `elem` fila livro || Just user == dono livro then
                             return $ Left "Você já está na fila deste livro!"
                         else do
                             let novaFila = fila livro ++ [user]
-                                livroAtualizado = livro {fila = novaFila}
-                            return $ Right (antes ++ [livroAtualizado] ++ depois)
+                            let livroAtualizado = livro {fila = novaFila}
+                            return $ Right (antes ++ [livroAtualizado] ++ depois, registros)
                     else
                         return $ Left "Ok!"
                 Indisponivel -> return $ Left "Livro está indisponível"
@@ -104,7 +130,7 @@ registrarDevolucao iduser idlivro registros =
     if any (\r -> livroId r == idlivro && usuarioId r == iduser && stat r == Emprestado) registros
     then 
         let registrosAtualizados = map (\r -> if livroId r == idlivro && usuarioId r == iduser 
-                                                then r { stat = Disponivel } 
+                                                then r  
                                                 else r) registros
         in Right registrosAtualizados
     else Left "Erro! Emprestimo não encontrado"
@@ -123,7 +149,7 @@ listaespera user queue =    if elem user (usuarios queue)
 -- imprime a lista de espera
 exibirlistaespera :: Livro -> String
 exibirlistaespera livro =
-    unlines (map coutusuarios (fila livro)) ++ "\nTotal de usuários na fia: " ++ show (length(fila livro))
+    unlines (map coutusuarios (fila livro)) ++ "\nTotal de usuários na fila: " ++ show (length(fila livro))
 
 
 

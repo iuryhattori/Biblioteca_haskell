@@ -1,1 +1,6 @@
-Livro {titulo = "Sla", autor = "Idk", ano = "2005", cod = 10, status = Disponivel, dono = Nothing, fila = []}
+Livro {titulo = "2", autor = "2", ano = 2, cod = 2, status = Disponivel, dono = Nothing, fila = []}
+Livro {titulo = "1", autor = "1", ano = 1, cod = 1, status = Emprestado, dono = Just (User {nome = "AiKatherine", matricula = -1, email = "kg@mail.com"}), fila = [User {nome = "Mark", matricula = 0, email = "ska"},User {nome = "C\225ssia", matricula = 1, email = "cs"}]}
+Livro {titulo = "Mar, c\233u e Lua", autor = "kg", ano = 8, cod = 8, status = Disponivel, dono = Nothing, fila = []}
+Livro {titulo = "0", autor = "ika", ano = 10, cod = 0, status = Disponivel, dono = Nothing, fila = []}
+Livro {titulo = "Sla", autor = "Idk", ano = 200, cod = 11, status = Disponivel, dono = Nothing, fila = []}
+Livro {titulo = "Tanto faz", autor = "Carlos", ano = 1001, cod = 1, status = Disponivel, dono = Nothing, fila = []}

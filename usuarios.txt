@@ -1,1 +1,5 @@
-User {nome = "AiKatherine", matricula = 13, email = "kg@mail.com"}
+User {nome = "AiKatherine", matricula = -1, email = "kg@mail.com"}
+User {nome = "Mark", matricula = 0, email = "ska"}
+User {nome = "C\225ssia", matricula = 1, email = "cs"}
+User {nome = "Ika", matricula = 2, email = "ska"}
+User {nome = "Marcelo", matricula = 101, email = "sla"}

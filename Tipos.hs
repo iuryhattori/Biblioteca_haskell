@@ -5,7 +5,7 @@ data Status = Disponivel | Indisponivel | Emprestado deriving(Show, Read, Eq)
 data Livro = Livro
     { titulo    :: String
     , autor     :: String
-    , ano       :: String
+    , ano       :: Int
     , cod       :: Int
     , status    :: Status
     , dono      :: Maybe User
