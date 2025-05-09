@@ -1,6 +1,7 @@
 module Tipos where
 
 data Status = Disponivel | Indisponivel | Emprestado deriving(Show, Read, Eq)
+data StatusRg = Esperando | Atual | Passado deriving(Show, Read, Eq)
 
 data Livro = Livro
     { titulo    :: String
@@ -28,5 +29,5 @@ data Fila = Fila {
 data Registro = Registro
     { usuarioId :: Int
     , livroId :: Int
-    , stat :: Status
+    , stat :: StatusRg
     } deriving (Show, Read, Eq)

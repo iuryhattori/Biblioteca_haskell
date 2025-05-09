@@ -1,1 +1,3 @@
-Registro {usuarioId = 0, livroId = 0, stat = Emprestado}
+Registro {usuarioId = 0, livroId = 0, stat = Passado}
+Registro {usuarioId = 1, livroId = 0, stat = Atual}
+Registro {usuarioId = 2, livroId = 0, stat = Esperando}
